@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <unistd.h>
+
 // defining constants to print out text with diffrent colors.
 #define RED  "\x1B[31m"
 #define GRN  "\x1B[32m"
@@ -45,6 +47,8 @@ int main(void)
     {
         system("clear");
         printf("%sFile loaded succesfully!\n", GRN);
+        sleep(0.7);
+        system("clear");
     }
 
     lines_count = count_lines(f);
@@ -70,7 +74,7 @@ int main(void)
 
 
      for (int i = 0; i < lines_count; i++) {
-        printf("Russian: %s\n", source_vocab[i]);
+        printf("English: %s\n", source_vocab[i]);
         printf("German: %s\n", target_vocab[i]);
         printf("\n");
     }
@@ -123,25 +127,31 @@ void allocate_mem(char **dictionary, int n)
 
 void populate_arrs(FILE *fptr)
 {
-    char *line = malloc(LINE_SIZE * sizeof(char));
+    char line[LINE_SIZE];
     int count = 0;
 
     while(fgets(line, sizeof(line), fptr) != NULL)
     {
         line[strcspn(line, "\n")] = 0;
 
-
         char *token = strtok(line, ";");
 
-        token = strtok(line, ";");
-        
+
         if(token != NULL)
-            source_vocab[count] = strdup(token);
+        {
+            size_t len = strlen(token);
+            strncpy(source_vocab[count], token, len);
+            source_vocab[count][len] = '\n';
+        }
+
         token = strtok(NULL, ";");
-
+       
         if(token != NULL)
-            target_vocab[count] = strdup(token);
-
+        {
+            size_t len = strlen(token);
+            strncpy(target_vocab[count], token, len);
+            target_vocab[count][len] = '\n';
+        }
         count++;
     }
 }
