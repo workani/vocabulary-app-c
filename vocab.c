@@ -28,6 +28,7 @@ void get_filename(char *fname);
 void allocate_mem(char **dictionary, int n);
 void populate_arrs(FILE *fptr);
 
+
 int main(void)
 {
     char *filename = malloc(256 * sizeof(char));
@@ -47,7 +48,7 @@ int main(void)
     {
         system("clear");
         printf("%sFile loaded succesfully!\n", GRN);
-        sleep(0.7);
+        sleep(1);
         system("clear");
     }
 
@@ -72,13 +73,42 @@ int main(void)
     // populating source and target arrays with content of user's csv file
     populate_arrs(f);
 
+    char input[STRING_SIZE];
 
-     for (int i = 0; i < lines_count; i++) {
-        printf("English: %s\n", source_vocab[i]);
-        printf("German: %s\n", target_vocab[i]);
-        printf("\n");
+    int current_word = 0;
+
+    int correct_answers = 0;
+    int incorrect_answers = 0; 
+    int score = 0;
+
+   
+    // loop until the end of the loaded vocabulary or until the user prints exit
+    while(current_word < lines_count && strcmp(input, "exit") != 0)
+    {
+        printf("%sWrite german translation for word %s\"%s\": \n", WHT, YEL, source_vocab[current_word]);
+        printf("%sTranslation: ", WHT);
+        scanf("%54s", input);
+
+        if(strcmp(input, target_vocab[current_word]) == 0)
+        {
+            correct_answers++;
+            score++;
+            system("clear");
+            printf("%sCorrect! +1 point\n", GRN);
+            sleep(1);
+        }
+        else
+        { 
+            if(score > 0) score--;
+            incorrect_answers++;
+            system("clear");
+            printf("%sIncorrect :( Score: %i\n", RED, score);
+            sleep(1);
+        }
+        
+        system("clear");
+        current_word++;
     }
-
 
 }
 
@@ -141,7 +171,7 @@ void populate_arrs(FILE *fptr)
         {
             size_t len = strlen(token);
             strncpy(source_vocab[count], token, len);
-            source_vocab[count][len] = '\n';
+            //source_vocab[count][len] = '\n';
         }
 
         token = strtok(NULL, ";");
@@ -150,7 +180,7 @@ void populate_arrs(FILE *fptr)
         {
             size_t len = strlen(token);
             strncpy(target_vocab[count], token, len);
-            target_vocab[count][len] = '\n';
+            //target_vocab[count][len] = '\n';
         }
         count++;
     }
