@@ -28,6 +28,7 @@ void get_filename(char *fname);
 void allocate_mem(char **dictionary, int n);
 void populate_arrs(FILE *fptr);
 void get_input(char *user_input, int current);
+void print_results(int correct, int incorrect, int score);
 
 
 int main(void)
@@ -105,7 +106,6 @@ int main(void)
             printf("%sIncorrect :(\n", RED);
             while(strcasecmp(input, target_vocab[current_word]) != 0 && strcasecmp(input, "exit") != 0)
             {
-                system("clear");
                 get_input(input, current_word);
             }
             sleep(1);
@@ -113,10 +113,9 @@ int main(void)
         system("clear");
         current_word++;
     }
-    printf("Total score: %i\n", score);
-    printf("Correct answers: %i\n", correct_answers);
-    printf("Incorrect answers: %i\n", incorrect_answers);
-
+    
+    //print out results
+    print_results(correct_answers, incorrect_answers, score);
 }
 
 int count_lines(FILE *f)
@@ -195,8 +194,18 @@ void populate_arrs(FILE *fptr)
 
 void get_input(char *user_input, int current)
 {
+    system("clear");
     printf("%s%i/%i\n", MAG, current, lines_count);
     printf("%sWrite German translation for %s\"%s\" \n", WHT, YEL, source_vocab[current]);
     printf("%sTranslation: ", WHT);
     scanf("%54s", user_input);
+}
+
+void print_results(int correct, int incorrect, int score)
+{
+    printf("+------------------------------End of the session-----------------------------+\n");
+    printf("Total score: %i/%i\n", score, lines_count);
+    printf("Correct answers: %i\n", correct);
+    printf("Incorrect answers: %i\n", incorrect);
+    printf("+-----------------------------------------------------------------------------+\n");
 }
