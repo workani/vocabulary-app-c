@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <unistd.h>
+#include <time.h>
 
 // defining constants to print out text with diffrent colors.
 #define RED  "\x1B[31m"
@@ -21,10 +21,11 @@
  char **target_vocab = NULL;
 
 //count amount of lines
-int lines_count;
+int lines_count = 0;
 
 // all necessary variables to keep track of user progress
-int current_word = 0;
+int index = 0;
+int word_count = 0;
 int correct_answers = 0;
 int incorrect_answers = 0; 
 int score = 0;
@@ -36,13 +37,19 @@ void allocate_mem(char **dictionary, int n);
 void populate_arrs(FILE *fptr);
 void get_input(char *user_input);
 void print_results(void);
-void correct_answer(void);
-void incorrect_answer(char *input);
+void correct_answer(int index);
+void incorrect_answer(char *input, int index);
+
+// functoins to get random index for vocab arrays
+void swap(int *a, int *b);
+void shuffle(int *indices);
 
 
 
 int main(void)
 {
+    srand(time(NULL)); //initalize random generator for future use 
+
     char *filename = malloc(256 * sizeof(char));
     get_filename(filename);
 
@@ -65,6 +72,16 @@ int main(void)
     }
 
     lines_count = count_lines(f);
+
+    
+    int *indices[lines_count];
+
+    for(int i = 0; i < lines_count; i++) // initalize an array of indices for random interation thru vocabulary arrays 
+    {
+        indices[i] = i;
+    }
+
+    schuffle(indices);
 
     source_vocab = malloc(lines_count * sizeof(char*));
     target_vocab = malloc(lines_count * sizeof(char*));
@@ -89,18 +106,20 @@ int main(void)
 
    
     // loop until the end of the loaded vocabulary or until the user prints exit
-    while(current_word < lines_count && strcasecmp(input, "exit") != 0)
+    while(word_count < lines_count && strcasecmp(input, "exit") != 0)
     {
+        int index = indices[word_count];
+
         char input[STRING_SIZE];
         get_input(input);
 
-        if(strcasecmp(input, target_vocab[current_word]) == 0)
+        if(strcasecmp(input, target_vocab[index]) == 0)
         {
-            correct_answer();
+            correct_answer(index);
         }
         else
         { 
-            incorrect_answer(input);
+            incorrect_answer(input, index);
         }
 
         if(strcasecmp(input, "exit") == 0)
@@ -109,7 +128,7 @@ int main(void)
         }
 
         system("clear");
-        current_word++;
+        word_count++;
     }
     
     //print out results
@@ -209,7 +228,7 @@ void print_results(void)
     printf("+-----------------------------------------------------------------------------+\n");
 }
 
-void correct_answer(void)
+void correct_answer(int index)
 {
     correct_answers++;
     score++;
@@ -218,17 +237,36 @@ void correct_answer(void)
     sleep(1);
 }
 
-void incorrect_answer(char *input)
+void incorrect_answer(char *input, int index)
 {
     system("clear");
+
+    // checking if user is exiting from the program; if not, incrementing incorrect answer count.
     if(strcasecmp(input, "exit") != 0) 
     {
         incorrect_answers++;
         printf("%sIncorrect :(\n", RED);
     }
+
     while(strcasecmp(input, target_vocab[current_word]) != 0 && strcasecmp(input, "exit") != 0)
     {
         get_input(input);
     }
     sleep(1);
+}
+
+void swap(int *a, int *b)
+{
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+void shuffle(int *indices)
+{
+    for(int i = lines_count - 1; i > 0; i--)
+    {
+        int j = rand() % (i + 1);
+        swap(&indices[i], &indices[i]);
+    }
 }
