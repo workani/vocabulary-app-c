@@ -212,20 +212,20 @@ void populate_arrs(FILE *fptr)
 void get_input(char *user_input, int idx)
 {
     system("clear");
-    printf("%s%i/%i\n", MAG, word_count, lines_count);
-    printf("%sWrite German translation for %s\"%s\" \n", WHT, YEL, source_vocab[idx]);
-    printf("%sTranslation: ", WHT);
+    printf("%sTotal: %i/%i\n", MAG, word_count, lines_count);
+    printf("%sType translation for %s\"%s\"%s: \n", WHT, YEL, source_vocab[idx], WHT);
+    printf("-> ");
     scanf("%54s", user_input);
 }
 
 void print_results(void)
 {
     system("clear");
-    printf("%s+------------------------------End of the session-----------------------------+\n", WHT);
-    printf("Total score: %i/%i\n", score, lines_count);
-    printf("Correct answers: %i\n", correct_answers);
-    printf("Incorrect answers: %i\n", incorrect_answers);
-    printf("+-----------------------------------------------------------------------------+\n");
+    printf("%s+------------------------------End of the session-----------------------------+\n", CYN);
+    printf("%sTotal score: %i/%i\n", MAG, score, lines_count);
+    printf("%sCorrect answers: %i\n", GRN, correct_answers);
+    printf("%sIncorrect answers: %i\n", RED, incorrect_answers);
+    printf("%s+-----------------------------------------------------------------------------+\n", CYN);
 }
 
 void correct_answer()
