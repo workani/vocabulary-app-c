@@ -24,7 +24,7 @@
 int lines_count = 0;
 
 // all necessary variables to keep track of user progress
-int index = 0;
+int idx = 0;
 int word_count = 0;
 int correct_answers = 0;
 int incorrect_answers = 0; 
@@ -35,10 +35,10 @@ int count_lines(FILE *f);
 void get_filename(char *fname);
 void allocate_mem(char **dictionary, int n);
 void populate_arrs(FILE *fptr);
-void get_input(char *user_input);
+void get_input(char *user_input, int idx);
 void print_results(void);
-void correct_answer(int index);
-void incorrect_answer(char *input, int index);
+void correct_answer();
+void incorrect_answer(char *input, int idx);
 
 // functoins to get random index for vocab arrays
 void swap(int *a, int *b);
@@ -74,14 +74,14 @@ int main(void)
     lines_count = count_lines(f);
 
     
-    int *indices[lines_count];
+    int indices[lines_count];
 
     for(int i = 0; i < lines_count; i++) // initalize an array of indices for random interation thru vocabulary arrays 
     {
         indices[i] = i;
     }
 
-    schuffle(indices);
+    shuffle(indices);
 
     source_vocab = malloc(lines_count * sizeof(char*));
     target_vocab = malloc(lines_count * sizeof(char*));
@@ -108,18 +108,18 @@ int main(void)
     // loop until the end of the loaded vocabulary or until the user prints exit
     while(word_count < lines_count && strcasecmp(input, "exit") != 0)
     {
-        int index = indices[word_count];
+        int idx = indices[word_count];
 
         char input[STRING_SIZE];
-        get_input(input);
+        get_input(input, idx);
 
-        if(strcasecmp(input, target_vocab[index]) == 0)
+        if(strcasecmp(input, target_vocab[idx]) == 0)
         {
-            correct_answer(index);
+            correct_answer();
         }
         else
         { 
-            incorrect_answer(input, index);
+            incorrect_answer(input, idx);
         }
 
         if(strcasecmp(input, "exit") == 0)
@@ -209,11 +209,11 @@ void populate_arrs(FILE *fptr)
     }
 }
 
-void get_input(char *user_input)
+void get_input(char *user_input, int idx)
 {
     system("clear");
-    printf("%s%i/%i\n", MAG, current_word, lines_count);
-    printf("%sWrite German translation for %s\"%s\" \n", WHT, YEL, source_vocab[current_word]);
+    printf("%s%i/%i\n", MAG, word_count, lines_count);
+    printf("%sWrite German translation for %s\"%s\" \n", WHT, YEL, source_vocab[idx]);
     printf("%sTranslation: ", WHT);
     scanf("%54s", user_input);
 }
@@ -228,7 +228,7 @@ void print_results(void)
     printf("+-----------------------------------------------------------------------------+\n");
 }
 
-void correct_answer(int index)
+void correct_answer()
 {
     correct_answers++;
     score++;
@@ -237,7 +237,7 @@ void correct_answer(int index)
     sleep(1);
 }
 
-void incorrect_answer(char *input, int index)
+void incorrect_answer(char *input, int idx)
 {
     system("clear");
 
@@ -248,9 +248,9 @@ void incorrect_answer(char *input, int index)
         printf("%sIncorrect :(\n", RED);
     }
 
-    while(strcasecmp(input, target_vocab[current_word]) != 0 && strcasecmp(input, "exit") != 0)
+    while(strcasecmp(input, target_vocab[idx]) != 0 && strcasecmp(input, "exit") != 0)
     {
-        get_input(input);
+        get_input(input, idx);
     }
     sleep(1);
 }
@@ -267,6 +267,6 @@ void shuffle(int *indices)
     for(int i = lines_count - 1; i > 0; i--)
     {
         int j = rand() % (i + 1);
-        swap(&indices[i], &indices[i]);
+        swap(&indices[i], &indices[j]);
     }
 }
