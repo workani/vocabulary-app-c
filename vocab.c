@@ -1,8 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <unistd.h>
 #include <time.h>
+
+
+//define clear function for windows and other systems separetly
+#ifdef _WIN32
+#define CLEAR  "cls"
+#else
+#define CLEAR "clear"
+#endif
 
 // defining constants to print out text with diffrent colors.
 #define RED  "\x1B[31m"
@@ -15,6 +24,8 @@
 
 #define LINE_SIZE 100
 #define STRING_SIZE 55
+
+
 
 // arrays for storing vocabulary
  char **source_vocab = NULL;
@@ -34,10 +45,12 @@ int score = 0;
 int count_lines(FILE *f);
 void get_filename(char *fname);
 void allocate_mem(char **dictionary, int n);
+void free_mem(void);
 void populate_arrs(FILE *fptr);
 void get_input(char *user_input, int idx);
 void print_results(void);
-void correct_answer();
+void print_detailed_results(void);
+void correct_answer(void);
 void incorrect_answer(char *input, int idx);
 
 // functoins to get random index for vocab arrays
@@ -59,16 +72,16 @@ int main(void)
 
     if(f == NULL)
     {
-        system("clear");
+        system(CLEAR);
         printf("%sFile path is incorrect! Exitinig...\n", RED);
         return 1;
     }
     else
     {
-        system("clear");
+        system(CLEAR);
         printf("%sFile loaded succesfully!\n", GRN);
         sleep(1);
-        system("clear");
+        system(CLEAR);
     }
 
     lines_count = count_lines(f);
@@ -89,8 +102,7 @@ int main(void)
     if(source_vocab == NULL || target_vocab == NULL)
     {
         printf("%sMemory Error. Exiting..", RED);
-        free(source_vocab);
-        free(target_vocab);
+        free_mem();
         return 1;
     }
     else
@@ -127,12 +139,15 @@ int main(void)
             break;
         }
 
-        system("clear");
+        system(CLEAR);
         word_count++;
     }
     
     //print out results
     print_results();
+
+    // clean up memory 
+    free_mem();
 }
 
 int count_lines(FILE *f)
@@ -153,7 +168,7 @@ int count_lines(FILE *f)
 
 void get_filename(char *fname)
 {
-    system("clear");
+    system(CLEAR);
 
     printf("+------------------------------Welcome-----------------------------+\n");
     printf("With this app, you can learn new vocabulary from foreign languages.\n");
@@ -175,6 +190,14 @@ void allocate_mem(char **dictionary, int n)
             return;
         }
     }
+}
+
+// deallocate memory from all sript arrays
+
+void free_mem(void)
+{
+    free(source_vocab);
+    free(target_vocab);
 }
 
 
@@ -211,7 +234,7 @@ void populate_arrs(FILE *fptr)
 
 void get_input(char *user_input, int idx)
 {
-    system("clear");
+    system(CLEAR);
     printf("%sTotal: %i/%i\n", MAG, word_count, lines_count);
     printf("%sType translation for %s\"%s\"%s: \n", WHT, YEL, source_vocab[idx], WHT);
     printf("-> ");
@@ -220,26 +243,50 @@ void get_input(char *user_input, int idx)
 
 void print_results(void)
 {
-    system("clear");
+    system(CLEAR);
+    char choice;
     printf("%s+------------------------------End of the session-----------------------------+\n", CYN);
     printf("%sTotal score: %i/%i\n", MAG, score, lines_count);
     printf("%sCorrect answers: %i\n", GRN, correct_answers);
     printf("%sIncorrect answers: %i\n", RED, incorrect_answers);
     printf("%s+-----------------------------------------------------------------------------+\n", CYN);
+    printf("%sDo you want to see detailed results of your session? (y or n): ", WHT);
+    
+    // get character input from user and convert it to lowercase
+    scanf(" %c", &choice);
+    choice = tolower(choice);
+
+    // print detailed results if the choice is 'y', else exit
+    if(choice == 'y')
+    {
+        print_detailed_results();
+    }
+    else
+    {
+        system(CLEAR);
+        exit(0);
+    }
+
+
 }
 
-void correct_answer()
+void print_detailed_results(void)
+{
+    ;
+}
+
+void correct_answer(void)
 {
     correct_answers++;
     score++;
-    system("clear");
-    printf("%sCorrect! +1 point\n", GRN);
+    system(CLEAR);
+    printf("%sCorrect!\n", GRN);
     sleep(1);
 }
 
 void incorrect_answer(char *input, int idx)
 {
-    system("clear");
+    system(CLEAR);
 
     // checking if user is exiting from the program; if not, incrementing incorrect answer count.
     if(strcasecmp(input, "exit") != 0) 
@@ -270,3 +317,4 @@ void shuffle(int *indices)
         swap(&indices[i], &indices[j]);
     }
 }
+
